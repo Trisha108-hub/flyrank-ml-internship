@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Does Age or Position Predict a Page's Search Trajectory? — FlyRank ML Internship Capstone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #F5F3FB;
+    --surface: #FFFFFF;
+    --surface-alt: #EEEAF8;
+    --ink: #2E2A3D;
+    --ink-soft: #635C79;
+    --ink-faint: #9089A8;
+    --line: #DFD9EF;
+    --accent: #7C93C9;
+    --accent-deep: #5C74AE;
+    --rose: #E7B6BE;
+    --rose-deep: #C97E8C;
+    --sage: #9FBFA8;
+    --sage-deep: #6E9A7C;
+    --amber: #E3C589;
+    --amber-deep: #B99247;
+    --radius: 14px;
+    --maxw: 1180px;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html{ scroll-behavior: smooth; }
+
+  html, body{
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, .serif{
+    font-family: 'Fraunces', 'Source Serif 4', Georgia, serif;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+
+  a{ color: var(--accent-deep); }
+
+  img, svg{ max-width: 100%; }
+
+  ::selection{ background: var(--rose); color: var(--ink); }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  }
+
+  /* ---------- Nav ---------- */
+
+  .nav{
+    position: fixed;
+    top:0; left:0; right:0;
+    z-index: 100;
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px clamp(16px, 4vw, 32px);
+    background: rgba(245,243,251,0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid transparent;
+    transition: border-color .3s ease, background .3s ease, padding .3s ease;
+  }
+  .nav.scrolled{
+    background: rgba(245,243,251,0.92);
+    border-bottom-color: var(--line);
+    padding-top: 11px;
+    padding-bottom: 11px;
+  }
+  .nav-mark{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-family:'Fraunces', serif;
+    font-size: 16px;
+    font-weight:500;
+    color: var(--ink);
+    text-decoration:none;
+    white-space:nowrap;
+    flex-shrink: 0;
+  }
+  .nav-mark .dot{
+    width:9px; height:9px; border-radius:50%;
+    background: conic-gradient(from 180deg, var(--accent), var(--rose), var(--sage), var(--accent));
+    flex-shrink:0;
+  }
+  .nav-links{
+    display:flex;
+    gap: clamp(14px, 2.4vw, 26px);
+    list-style:none;
+    margin:0; padding:0 2px;
+    overflow-x:auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .nav-links::-webkit-scrollbar{ display:none; }
+  .nav-links a{
+    position:relative;
+    text-decoration:none;
+    color: var(--ink-soft);
+    font-size: 14px;
+    font-weight: 500;
+    padding-bottom: 4px;
+    white-space:nowrap;
+    transition: color .2s ease;
+  }
+  .nav-links a::after{
+    content:'';
+    position:absolute;
+    left:0; bottom:0;
+    width:100%; height:2px;
+    background: var(--accent-deep);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .25s ease;
+  }
+  .nav-links a:hover{ color: var(--ink); }
+  .nav-links a.active{ color: var(--ink); }
+  .nav-links a.active::after{ transform: scaleX(1); }
+
+  @media (max-width: 560px){
+    .nav-mark .label{ display:none; }
+  }
+
+  /* ---------- Hero ---------- */
+
+  .hero{
+    position:relative;
+    padding: clamp(88px, 16vw, 136px) clamp(20px, 5vw, 32px) clamp(40px, 6vw, 64px);
+    overflow:hidden;
+    isolation:isolate;
+  }
+  .hero-blob{
+    position:absolute;
+    z-index:-1;
+    top: -180px;
+    right: -160px;
+    width: 620px;
+    height: 620px;
+    max-width: 90vw;
+    max-height: 90vw;
+    border-radius: 44% 56% 62% 38% / 45% 40% 60% 55%;
+    background: radial-gradient(circle at 30% 30%, rgba(124,147,201,0.35), rgba(231,182,190,0.30) 55%, rgba(159,191,168,0.22) 80%, transparent 100%);
+    filter: blur(6px);
+    animation: drift 26s ease-in-out infinite alternate;
+    opacity:0;
+  }
+  @keyframes drift{
+    0%{ transform: translate(0,0) rotate(0deg) scale(1); }
+    100%{ transform: translate(-40px, 50px) rotate(18deg) scale(1.08); }
+  }
+  @keyframes fadeIn{ to{ opacity:1; } }
+  @keyframes riseIn{ from{ opacity:0; transform: translateY(18px); } to{ opacity:1; transform: translateY(0); } }
+
+  .hero-blob{ animation: drift 26s ease-in-out infinite alternate, fadeIn 1.6s ease forwards; }
+
+  .hero-eyebrow{
+    font-family:'Inter', sans-serif;
+    font-size: 13.5px;
+    color: var(--accent-deep);
+    font-weight: 600;
+    margin: 0 0 18px;
+    opacity:0;
+    animation: riseIn .7s ease .1s forwards;
+  }
+  .hero h1{
+    font-size: clamp(30px, 6vw, 52px);
+    line-height: 1.14;
+    margin: 0 0 22px;
+    max-width: 15ch;
+    opacity:0;
+    animation: riseIn .8s ease .25s forwards;
+  }
+  .hero-sub{
+    font-size: clamp(15.5px, 2.2vw, 17.5px);
+    color: var(--ink-soft);
+    max-width: 58ch;
+    margin: 0 0 clamp(24px, 5vw, 36px);
+    opacity:0;
+    animation: riseIn .8s ease .42s forwards;
+  }
+
+  .meta-grid{
+    display:grid;
+    grid-template-columns: repeat(4, auto);
+    gap: clamp(18px, 3vw, 28px) clamp(24px, 5vw, 40px);
+    padding-top: 28px;
+    border-top: 1px solid var(--line);
+    max-width: 640px;
+    opacity:0;
+    animation: riseIn .8s ease .58s forwards;
+  }
+  .meta-item .k{
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    font-weight:600;
+    margin-bottom:5px;
+  }
+  .meta-item .v{
+    font-size: 14.5px;
+    color: var(--ink);
+    font-weight: 500;
+    word-break: break-word;
+  }
+  .meta-item .v a{ color: var(--accent-deep); text-decoration:none; border-bottom: 1px solid var(--accent); }
+
+  @media (max-width: 620px){
+    .meta-grid{ grid-template-columns: repeat(2, auto); }
+  }
+  @media (max-width: 360px){
+    .meta-grid{ grid-template-columns: 1fr; }
+  }
+
+  /* ---------- Layout ---------- */
+
+  main{ padding: 0 clamp(18px, 5vw, 32px) 24px; }
+  section{
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: clamp(30px, 5.5vw, 52px) 0;
+    border-bottom: 1px solid var(--line);
+  }
+  section:last-of-type{ border-bottom:none; }
+
+  .sec-head{
+    display:flex;
+    align-items:baseline;
+    gap: 14px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+  .sec-num{
+    font-family:'Fraunces', serif;
+    font-size: 15px;
+    color: var(--accent-deep);
+    background: var(--surface-alt);
+    border-radius: 8px;
+    width: 30px; height:30px;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .sec-head h2{
+    font-size: clamp(21px, 3.6vw, 26px);
+    margin:0;
+  }
+
+  p{ color: var(--ink); margin: 0 0 12px; }
+  section > p:first-of-type{ margin-top: 0; }
+
+  .lede{
+    font-size: clamp(15.5px, 2vw, 17px);
+    color: var(--ink-soft);
+    max-width: 62ch;
+  }
+
+  code{
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 0.86em;
+    background: var(--surface-alt);
+    padding: 2px 6px;
+    border-radius: 5px;
+    color: var(--accent-deep);
+    word-break: break-word;
+  }
+
+  /* ---------- Stat cards ---------- */
+
+  .stat-row{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 18px 0 22px;
+  }
+  .stat{
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 20px 18px;
+    border-top: 3px solid var(--accent);
+  }
+  .stat:nth-child(2){ border-top-color: var(--rose-deep); }
+  .stat:nth-child(3){ border-top-color: var(--sage-deep); }
+  .stat .num{
+    font-family:'Fraunces', serif;
+    font-size: clamp(22px, 4vw, 30px);
+    color: var(--ink);
+    display:block;
+    margin-bottom: 4px;
+  }
+  .stat .lbl{
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  @media (max-width: 700px){
+    .stat-row{ grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 420px){
+    .stat-row{ grid-template-columns: 1fr; }
+  }
+
+  .excl-list{
+    list-style:none;
+    padding:0; margin: 18px 0;
+  }
+  .excl-list li{
+    padding: 14px 0 14px 22px;
+    border-top: 1px solid var(--line);
+    position:relative;
+    font-size: 15px;
+    color: var(--ink-soft);
+  }
+  .excl-list li::before{
+    content:'—';
+    position:absolute;
+    left:0; top:14px;
+    color: var(--rose-deep);
+  }
+  .excl-list li strong{ color: var(--ink); font-weight:600; }
+
+  .note-box{
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    font-size: 14.5px;
+    color: var(--ink-soft);
+    margin: 20px 0 0;
+    border-left: 3px solid var(--sage-deep);
+  }
+
+  /* ---------- Table ---------- */
+
+  .tbl-wrap{
+    overflow-x:auto;
+    margin: 20px 0;
+    border-radius: var(--radius);
+    -webkit-overflow-scrolling: touch;
+  }
+  table{
+    width:100%;
+    min-width: 520px;
+    border-collapse: collapse;
+    background: var(--surface);
+    border-radius: var(--radius);
+    overflow:hidden;
+    font-size: 14.5px;
+  }
+  th, td{
+    text-align:left;
+    padding: 13px 16px;
+    white-space: nowrap;
+  }
+  thead th{
+    background: var(--surface-alt);
+    color: var(--ink-soft);
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  tbody tr:not(:last-child) td{ border-bottom: 1px solid var(--line); }
+  tbody td:first-child{ font-weight:500; }
+
+  @media (max-width: 600px){
+    th, td{ padding: 11px 12px; font-size: 13.5px; }
+  }
+
+  .readstraight{
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    margin: 22px 0;
+  }
+  .readstraight .tag{
+    font-size: 12px;
+    font-weight:600;
+    color: var(--accent-deep);
+    display:block;
+    margin-bottom: 8px;
+  }
+
+  /* ---------- Charts ---------- */
+
+  .chart-card{
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: clamp(14px, 2.4vw, 22px) clamp(12px, 2.4vw, 22px) clamp(12px, 2.4vw, 16px);
+    margin: 16px 0;
+  }
+  .chart-card svg{ width:100%; height:auto; display:block; }
+  .chart-cap{
+    font-size: 13px;
+    color: var(--ink-faint);
+    margin-top: 14px;
+    line-height:1.5;
+  }
+  .chart-cap b{ color: var(--ink-soft); }
+
+  /* ---------- Limitations ---------- */
+
+  .lim-list{ list-style:none; padding:0; margin: 16px 0; }
+  .lim-item{
+    display:grid;
+    grid-template-columns: 150px 1fr;
+    gap: 18px;
+    padding: 14px 0;
+    border-top: 1px solid var(--line);
+  }
+  .lim-item .lab{
+    font-size: 13px;
+    font-weight:600;
+    color: var(--rose-deep);
+  }
+  .lim-item p{ margin:0; font-size:15px; color: var(--ink-soft); }
+  @media (max-width: 600px){
+    .lim-item{ grid-template-columns: 1fr; gap:6px; }
+  }
+
+  /* ---------- Recommendations ---------- */
+
+  .rec-list{ list-style:none; padding:0; margin: 16px 0; counter-reset: rec; }
+  .rec{
+    display:grid;
+    grid-template-columns: 40px 1fr;
+    gap: 14px;
+    padding: 15px 0;
+    border-top: 1px solid var(--line);
+  }
+  .rec-n{
+    font-family:'Fraunces', serif;
+    font-size: 20px;
+    color: var(--ink-faint);
+  }
+  .rec h3{
+    font-size: clamp(15.5px, 2.4vw, 17px);
+    margin: 0 0 4px;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap: 10px;
+  }
+  .rec-tag{
+    font-size: 11px;
+    font-weight:600;
+    padding: 3px 9px;
+    border-radius: 999px;
+    color: var(--ink);
+    background: var(--accent);
+    white-space: nowrap;
+  }
+  .rec:nth-child(1) .rec-tag{ background: var(--amber); }
+  .rec:nth-child(2) .rec-tag{ background: var(--accent); color:#fff; }
+  .rec:nth-child(3) .rec-tag{ background: var(--sage); }
+  .rec:nth-child(4) .rec-tag{ background: var(--rose); }
+  .rec:nth-child(5) .rec-tag{ background: var(--amber); }
+  .rec p{ margin:0; font-size: 14.5px; color: var(--ink-soft); }
+
+  @media (max-width: 420px){
+    .rec{ grid-template-columns: 1fr; gap: 4px; }
+    .rec-n{ font-size: 15px; }
+  }
+
+  /* ---------- Repro / footer ---------- */
+
+  .repro-box{
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    margin-top: 20px;
+    font-size: 14.5px;
+    color: var(--ink-soft);
+    word-break: break-word;
+  }
+  footer{
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 32px clamp(18px, 5vw, 32px) 64px;
+    font-size: 13.5px;
+    color: var(--ink-faint);
+  }
+
+  .back-top{
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
+    text-decoration:none;
+    color: var(--ink-soft);
+    opacity:0;
+    pointer-events:none;
+    transition: opacity .3s ease, transform .2s ease;
+    z-index: 90;
+  }
+  .back-top.show{ opacity:1; pointer-events:auto; }
+  .back-top:hover{ transform: translateY(-2px); color: var(--ink); }
+
+  /* ---------- Focus visibility (accessibility) ---------- */
+  a:focus-visible, .back-top:focus-visible{
+    outline: 2px solid var(--accent-deep);
+    outline-offset: 2px;
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <a href="#top" class="nav-mark"><span class="dot"></span><span class="label">Search Trajectory</span></a>
+  <ul class="nav-links">
+    <li><a href="#abstract" data-sec="abstract">Abstract</a></li>
+    <li><a href="#data" data-sec="data">Data</a></li>
+    <li><a href="#method" data-sec="method">Method</a></li>
+    <li><a href="#results" data-sec="results">Results</a></li>
+    <li><a href="#limitations" data-sec="limitations">Limitations</a></li>
+    <li><a href="#recommendations" data-sec="recommendations">Recommendations</a></li>
+    <li><a href="#repro" data-sec="repro">Repro</a></li>
+  </ul>
+</nav>
+
+<header class="hero" id="top">
+  <div class="hero-blob"></div>
+  <p class="hero-eyebrow">FlyRank ML Internship — Search Intelligence Capstone</p>
+  <h1>Does age, freshness, or position predict a page's search trajectory?</h1>
+  <p class="hero-sub">A same-split test of a transparent editorial rule set against a naive baseline — and an honest look at what happened when the model didn't win.</p>
+
+  <div class="meta-grid">
+    <div class="meta-item"><div class="k">Author</div><div class="v">Trisha Barua</div></div>
+    <div class="meta-item"><div class="k">Lane</div><div class="v">Refresh / Content Opportunity Scoring</div></div>
+    <div class="meta-item"><div class="k">Seed</div><div class="v">42, fixed</div></div>
+    <div class="meta-item"><div class="k">Repo</div><div class="v"><a href="https://github.com/Trisha108-hub/flyrank-ml-internship" target="_blank" rel="noopener">flyrank-ml-internship</a></div></div>
+  </div>
+</header>
+
+<main>
+
+  <section id="abstract">
+    <div class="sec-head"><span class="sec-num">0</span><h2>Abstract</h2></div>
+    <p class="lede">Inside a portfolio of FlyRank client pages, can a page's age, freshness, and search position — not its topic or backlinks — separate pages gaining visibility from pages losing it?</p>
+    <p>Using two non-overlapping months of the FlyRank ML Internship warehouse (feature month vs. label month), a transparent reason-code rule set and a logistic regression were each evaluated against a majority-class baseline on the same held-out split. The model matched but did not beat the baseline (62.2% accuracy for both, n<sub>test</sub> = 16,629), and never predicted the minority "growing" class at the default threshold — a negative result reported honestly rather than reframed.</p>
+    <p>The stronger, more useful finding was structural: click-through rate fell roughly 73% from top-3 to deep search positions in this sample, which is what powers the ranked, reason-coded action queue this paper recommends for editorial review.</p>
+  </section>
+
+  <section id="intro">
+    <div class="sec-head"><span class="sec-num">1</span><h2>Introduction</h2></div>
+    <p>With a few thousand pages and a small editorial team, the real question isn't "will our rankings change" — it's <em>which pages get reviewed first this week</em>. This paper's output is a ranked, reason-coded queue for a human editor to work through, not an automated publishing action.</p>
+    <p>Simple, auditable group differences were tried first; a held-out model was added second, used only to check whether that simple story survives a proper train/test split — not because a fancier model was assumed to be better on its own merits.</p>
+  </section>
+
+  <section id="data">
+    <div class="sec-head"><span class="sec-num">2</span><h2>Data</h2></div>
+    <p><strong>Release:</strong> FlyRank ML Internship warehouse (<code>FlyRank/internship-warehouse</code> on Hugging Face, gated access), queried via DuckDB over <code>hf://</code>.<br>
+    <strong>Tables:</strong> <code>dim_content</code> joined to <code>fact_content_daily_performance</code>, partitioned by month.<br>
+    <strong>Date windows:</strong> feature month <code>2026-03</code>, label month <code>2026-04</code> — two non-overlapping months, so the label is never computed from the same window as the features.</p>
+
+    <div class="stat-row">
+      <div class="stat"><span class="num">66,513</span><span class="lbl">training rows</span></div>
+      <div class="stat"><span class="num">16,629</span><span class="lbl">held-out test rows</span></div>
+      <div class="stat"><span class="num">37.8%</span><span class="lbl">base rate, "growing"</span></div>
+    </div>
+
+    <p style="font-weight:500; margin-bottom:4px;">Excluded, and why</p>
+    <ul class="excl-list">
+      <li><strong>Product-computed fields</strong> (e.g. a health score) — not shipped in this warehouse release at all, so there was nothing to exclude.</li>
+      <li><strong>"Not indexed" style fields</strong> — don't exist in the real schema; recommendations depending on them were dropped rather than fabricated.</li>
+      <li><strong>Revenue</strong> — not tracked in this dataset; clicks × CPC is used as a value proxy instead, never presented as a revenue figure.</li>
+      <li><strong><code>content_updated_date</code></strong> as a decision-time-safe signal — <code>dim_content</code> is a single frozen snapshot, so freshness-based reason codes are kept but treated as directional-only.</li>
+    </ul>
+
+    <div class="note-box">Public-safe: no brand names, URLs, page titles, or query strings appear anywhere in this paper — every number is a computed aggregate.</div>
+  </section>
+
+  <section id="method">
+    <div class="sec-head"><span class="sec-num">3</span><h2>Methodology</h2></div>
+    <p><strong>Label.</strong> A page is labeled <code>growing</code> if label-month impressions rose more than 10% above the feature month, and <code>declining</code> if they fell more than 10%; pages in between ("stable") are excluded from this classification task.</p>
+    <p><strong>Features.</strong> <code>content_age_days</code>, <code>days_since_update</code>, <code>avg_position</code>, <code>word_count</code>, <code>intent</code>, <code>competition</code>. Feature-month impressions and clicks were deliberately left out — since the label is derived from a change starting at that same value, including them would let the model partly reconstruct its own answer.</p>
+    <p><strong>Baseline.</strong> A majority-class predictor. Its accuracy is exactly the base rate, and it's reported in the same table as the model — not a token comparison buried in prose.</p>
+    <p><strong>Validation design.</strong> A single stratified 80/20 train/test split (seed 42), so the baseline and the model are scored on identical held-out rows. This is a random row-level split, not grouped by client — flagged explicitly below, since a prior audit on this same project found random splits can overstate performance versus a client-grouped split.</p>
+    <p><strong>Leakage checks passed:</strong> no product-computed field in the feature matrix, feature-month impressions/clicks excluded, no page identifier used as a feature, stratified split confirmed to preserve the base rate in both folds, and all numeric features scaled using training-fold statistics only.</p>
+  </section>
+
+  <section id="results">
+    <div class="sec-head"><span class="sec-num">4</span><h2>Results, vs. baseline</h2></div>
+    <p class="lede">Both rows below are scored on the identical held-out test set — the same-split comparison that makes this table honest.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Model</th><th>n (test)</th><th>Base rate</th><th>Accuracy</th><th>Precision</th><th>Recall</th></tr></thead>
+        <tbody>
+          <tr><td>Majority-class baseline</td><td>16,629</td><td>37.8%</td><td>62.2%</td><td>—</td><td>—</td></tr>
+          <tr><td>Logistic regression, same split</td><td>16,629</td><td>37.8%</td><td>62.2%</td><td>0.0%</td><td>0.0%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="readstraight">
+      <span class="tag">Read this straight</span>
+      <p style="margin:0;">On this random split, four simple features — age proxy, position, word count, intent/competition — did not separate growing pages from declining ones beyond the majority-class baseline. The model never predicted the minority "growing" class at the default threshold. That's a real, reportable result, not a failed run.</p>
+    </div>
+
+    <!-- Fig 1: baseline vs model accuracy -->
+    <div class="chart-card">
+      <svg viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+        <line x1="60" y1="20" x2="60" y2="180" stroke="#DFD9EF" stroke-width="1"/>
+        <line x1="60" y1="180" x2="600" y2="180" stroke="#DFD9EF" stroke-width="1"/>
+        <text x="52" y="184" text-anchor="end" font-size="11" fill="#9089A8" font-family="Inter, sans-serif">0%</text>
+        <text x="52" y="24" text-anchor="end" font-size="11" fill="#9089A8" font-family="Inter, sans-serif">100%</text>
+        <line x1="60" y1="119.5" x2="600" y2="119.5" stroke="#C97E8C" stroke-width="1.4" stroke-dasharray="5 5"/>
+        <text x="440" y="114" font-size="11" fill="#C97E8C" font-family="Inter, sans-serif">base rate 37.8%</text>
+        <rect x="180" y="80.5" width="90" height="99.5" rx="6" fill="#7C93C9"/>
+        <text x="225" y="70" text-anchor="middle" font-size="13" fill="#2E2A3D" font-family="Fraunces, serif">62.2%</text>
+        <text x="225" y="200" text-anchor="middle" font-size="12" fill="#635C79" font-family="Inter, sans-serif">Baseline</text>
+
+        <rect x="360" y="80.5" width="90" height="99.5" rx="6" fill="#9FBFA8"/>
+        <text x="405" y="70" text-anchor="middle" font-size="13" fill="#2E2A3D" font-family="Fraunces, serif">62.2%</text>
+        <text x="405" y="200" text-anchor="middle" font-size="12" fill="#635C79" font-family="Inter, sans-serif">Logistic regression</text>
+      </svg>
+      <div class="chart-cap"><b>Fig. 1</b> — Baseline vs. model accuracy, identical held-out split (n = 16,629). Dashed line marks the base rate.</div>
+    </div>
+
+    <p>The more useful pattern in the data was structural rather than predictive: click-through rate dropped roughly 73% moving from top-3 search positions to the deepest position tier in this sample.</p>
+
+    <!-- Fig 2: CTR by position tier -->
+    <div class="chart-card">
+      <svg viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+        <line x1="60" y1="20" x2="60" y2="180" stroke="#DFD9EF" stroke-width="1"/>
+        <line x1="60" y1="180" x2="600" y2="180" stroke="#DFD9EF" stroke-width="1"/>
+        <text x="52" y="184" text-anchor="end" font-size="11" fill="#9089A8" font-family="Inter, sans-serif">0%</text>
+        <rect x="90"  y="30"  width="70" height="150" rx="6" fill="#7C93C9"/>
+        <text x="125" y="22" text-anchor="middle" font-size="12" fill="#2E2A3D" font-family="Fraunces, serif">32%</text>
+        <text x="125" y="200" text-anchor="middle" font-size="11.5" fill="#635C79" font-family="Inter, sans-serif">Top 3</text>
+
+        <rect x="235" y="100" width="70" height="80" rx="6" fill="#93A8D6"/>
+        <text x="270" y="92" text-anchor="middle" font-size="12" fill="#2E2A3D" font-family="Fraunces, serif">17%</text>
+        <text x="270" y="200" text-anchor="middle" font-size="11.5" fill="#635C79" font-family="Inter, sans-serif">4–10</text>
+
+        <rect x="380" y="129" width="70" height="51" rx="6" fill="#C7B5DD"/>
+        <text x="415" y="121" text-anchor="middle" font-size="12" fill="#2E2A3D" font-family="Fraunces, serif">11%</text>
+        <text x="415" y="200" text-anchor="middle" font-size="11.5" fill="#635C79" font-family="Inter, sans-serif">11–20</text>
+
+        <rect x="525" y="140" width="70" height="40" rx="6" fill="#E7B6BE"/>
+        <text x="560" y="132" text-anchor="middle" font-size="12" fill="#2E2A3D" font-family="Fraunces, serif">8.6%</text>
+        <text x="560" y="200" text-anchor="middle" font-size="11.5" fill="#635C79" font-family="Inter, sans-serif">21+</text>
+      </svg>
+      <div class="chart-cap"><b>Fig. 2</b> — CTR by search-position tier, feature-month sample. Illustrative reconstruction of the reported ~73% top-3-to-deep drop; see <code>work/outputs/paper_results.json</code> for exact per-tier values.</div>
+    </div>
+
+    <!-- Fig 3: CTR by content age -->
+    <div class="chart-card">
+      <svg viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+        <line x1="60" y1="20" x2="60" y2="180" stroke="#DFD9EF" stroke-width="1"/>
+        <line x1="60" y1="180" x2="600" y2="180" stroke="#DFD9EF" stroke-width="1"/>
+        <polyline points="100,50 250,85 400,120 550,148" fill="none" stroke="#6E9A7C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="100" cy="50" r="5" fill="#6E9A7C"/>
+        <circle cx="250" cy="85" r="5" fill="#6E9A7C"/>
+        <circle cx="400" cy="120" r="5" fill="#6E9A7C"/>
+        <circle cx="550" cy="148" r="5" fill="#6E9A7C"/>
+        <text x="100" y="200" text-anchor="middle" font-size="11.5" fill="#635C79" font-family="Inter, sans-serif">0–6mo</text>
+        <text x="250" y="200" text-anchor="middle" font-size="11.5" fill="#635C79" font-family="Inter, sans-serif">6–12mo</text>
+        <text x="400" y="200" text-anchor="middle" font-size="11.5" fill="#635C79" font-family="Inter, sans-serif">1–2yr</text>
+        <text x="550" y="200" text-anchor="middle" font-size="11.5" fill="#635C79" font-family="Inter, sans-serif">2yr+</text>
+      </svg>
+      <div class="chart-cap"><b>Fig. 3</b> — Implied CTR by content-age bucket, observed feature-month sample (illustrative trend line, directional only per §5).</div>
+    </div>
+  </section>
+
+  <section id="limitations">
+    <div class="sec-head"><span class="sec-num">5</span><h2>Limitations &amp; honest framing</h2></div>
+    <ul class="lim-list">
+      <li class="lim-item"><div class="lab">Observational</div><p>No page was randomly assigned to be refreshed or left alone, so any refresh-vs-stale comparison elsewhere in this project likely carries selection bias.</p></li>
+      <li class="lim-item"><div class="lab">Random split</div><p>A prior audit measured a meaningful ROC-AUC gap between a random split and a client-grouped split. Section 4's result should be read as an upper bound, not a final number.</p></li>
+      <li class="lim-item"><div class="lab">Coarse label</div><p>Collapsing a continuous impressions change into growing/declining and dropping "stable" pages means reported accuracy describes only the directional-extremes subset.</p></li>
+      <li class="lim-item"><div class="lab">No inference</div><p>No confidence interval or significance test accompanies the metrics above — treat the baseline/model gap as directional, not certified.</p></li>
+      <li class="lim-item"><div class="lab">Freshness signal</div><p><code>dim_content</code> is a frozen snapshot rather than a per-month history, so age- and update-based fields aren't reliably decision-time-safe.</p></li>
+      <li class="lim-item"><div class="lab">No revenue</div><p>This analysis doesn't touch AI-session data, and this dataset has no booked-revenue field — any value estimate uses clicks × CPC, never revenue.</p></li>
+    </ul>
+  </section>
+
+  <section id="recommendations">
+    <div class="sec-head"><span class="sec-num">6</span><h2>Ranked recommendations</h2></div>
+    <p class="lede">Even though the classifier didn't beat the baseline, this queue still works as decision support — it's built from real, recomputed CTR and position benchmarks, not from the unproven model.</p>
+
+    <ul class="rec-list">
+      <li class="rec"><div class="rec-n">1</div><div>
+        <h3>Refresh pages with no update in 180+ days <span class="rec-tag">DECAY_RISK</span></h3>
+        <p>140 pages flagged. Directional only — <code>content_updated_date</code> is a frozen snapshot, not decision-time-safe.</p>
+      </div></li>
+      <li class="rec"><div class="rec-n">2</div><div>
+        <h3>Fix titles/snippets on already-ranking page-1 pages <span class="rec-tag">PAGE1_CTR_GAP</span></h3>
+        <p>65,690 pages flagged. ~73% CTR drop from top-3 to deep positions makes this the cheapest lever available — better metadata, not net-new content.</p>
+      </div></li>
+      <li class="rec"><div class="rec-n">3</div><div>
+        <h3>Strengthen relevance / internal links on striking-distance pages <span class="rec-tag">STRIKING_DISTANCE</span></h3>
+        <p>25,883 pages flagged. Positions 11–20 sit in the steepest CTR step-up zone in this sample's own position-tier table.</p>
+      </div></li>
+      <li class="rec"><div class="rec-n">4</div><div>
+        <h3>Expand thin pages that already earn impressions <span class="rec-tag">THIN_BUT_VISIBLE</span></h3>
+        <p>6,335 pages flagged. Word count is not a strong signal overall, but growing pages average more words than declining pages in this sample.</p>
+      </div></li>
+      <li class="rec"><div class="rec-n">5</div><div>
+        <h3>Prioritize low-competition commercial/transactional topics <span class="rec-tag">LOW_COMP_COMMERCIAL</span></h3>
+        <p>Lowest-competition commercial/transactional pages in this sample, ranked by keyword competition score.</p>
+      </div></li>
+    </ul>
+  </section>
+
+  <section id="repro">
+    <div class="sec-head"><span class="sec-num">7</span><h2>Reproducibility</h2></div>
+    <p>Full pipeline, feature engineering, and evaluation code: <a href="https://github.com/Trisha108-hub/flyrank-ml-internship/blob/main/work/notebooks/capstone.ipynb" target="_blank" rel="noopener">capstone.ipynb</a> in <code>work/notebooks/</code>.</p>
+    <div class="repro-box">
+      Random seed fixed at <code>42</code>. Re-run top to bottom (Runtime → Run all) in Colab with Hugging Face read-token access to <code>FlyRank/internship-warehouse</code>. All charts and result tables are exported directly by the notebook to <code>work/figures/</code> and <code>work/outputs/paper_results.json</code>, so the numbers here can be checked against a fresh run rather than taken on faith.
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Acknowledgments &amp; data credit — built on the FlyRank ML Internship dataset, <a href="https://flyrank.ai" target="_blank" rel="noopener">flyrank.ai</a>.
+</footer>
+
+<a href="#top" class="back-top" id="backTop" aria-label="Back to top">↑</a>
+
+<script>
+  const nav = document.getElementById('nav');
+  const backTop = document.getElementById('backTop');
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY;
+    nav.classList.toggle('scrolled', y > 40);
+    backTop.classList.toggle('show', y > 600);
+  }, { passive: true });
+
+  const links = document.querySelectorAll('.nav-links a');
+  const secIds = ['abstract','data','method','results','limitations','recommendations','repro'];
+  const secs = secIds.map(id => document.getElementById(id)).filter(Boolean);
+
+  const spy = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.toggle('active', l.dataset.sec === entry.target.id));
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px', threshold: 0 });
+
+  secs.forEach(s => spy.observe(s));
+</script>
+
+</body>
+</html>
