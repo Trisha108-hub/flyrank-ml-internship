@@ -25,17 +25,12 @@
     --amber: #E3C589;
     --amber-deep: #B99247;
     --radius: 14px;
-    --maxw: 1180px;
+    --maxw: 760px;
   }
 
   *{ box-sizing: border-box; }
 
   html{ scroll-behavior: smooth; }
-
-  html, body{
-    max-width: 100%;
-    overflow-x: hidden;
-  }
 
   body{
     margin:0;
@@ -56,8 +51,6 @@
 
   a{ color: var(--accent-deep); }
 
-  img, svg{ max-width: 100%; }
-
   ::selection{ background: var(--rose); color: var(--ink); }
 
   @media (prefers-reduced-motion: reduce){
@@ -73,8 +66,7 @@
     display:flex;
     align-items:center;
     justify-content: space-between;
-    gap: 16px;
-    padding: 16px clamp(16px, 4vw, 32px);
+    padding: 16px 32px;
     background: rgba(245,243,251,0.7);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
@@ -84,8 +76,7 @@
   .nav.scrolled{
     background: rgba(245,243,251,0.92);
     border-bottom-color: var(--line);
-    padding-top: 11px;
-    padding-bottom: 11px;
+    padding: 11px 32px;
   }
   .nav-mark{
     display:flex;
@@ -97,7 +88,6 @@
     color: var(--ink);
     text-decoration:none;
     white-space:nowrap;
-    flex-shrink: 0;
   }
   .nav-mark .dot{
     width:9px; height:9px; border-radius:50%;
@@ -106,14 +96,11 @@
   }
   .nav-links{
     display:flex;
-    gap: clamp(14px, 2.4vw, 26px);
+    gap: 26px;
     list-style:none;
-    margin:0; padding:0 2px;
+    margin:0; padding:0;
     overflow-x:auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
   }
-  .nav-links::-webkit-scrollbar{ display:none; }
   .nav-links a{
     position:relative;
     text-decoration:none;
@@ -138,15 +125,11 @@
   .nav-links a.active{ color: var(--ink); }
   .nav-links a.active::after{ transform: scaleX(1); }
 
-  @media (max-width: 560px){
-    .nav-mark .label{ display:none; }
-  }
-
   /* ---------- Hero ---------- */
 
   .hero{
     position:relative;
-    padding: clamp(88px, 16vw, 136px) clamp(20px, 5vw, 32px) clamp(40px, 6vw, 64px);
+    padding: 168px 32px 96px;
     overflow:hidden;
     isolation:isolate;
   }
@@ -157,8 +140,6 @@
     right: -160px;
     width: 620px;
     height: 620px;
-    max-width: 90vw;
-    max-height: 90vw;
     border-radius: 44% 56% 62% 38% / 45% 40% 60% 55%;
     background: radial-gradient(circle at 30% 30%, rgba(124,147,201,0.35), rgba(231,182,190,0.30) 55%, rgba(159,191,168,0.22) 80%, transparent 100%);
     filter: blur(6px);
@@ -184,7 +165,7 @@
     animation: riseIn .7s ease .1s forwards;
   }
   .hero h1{
-    font-size: clamp(30px, 6vw, 52px);
+    font-size: clamp(32px, 4.4vw, 52px);
     line-height: 1.14;
     margin: 0 0 22px;
     max-width: 15ch;
@@ -192,10 +173,10 @@
     animation: riseIn .8s ease .25s forwards;
   }
   .hero-sub{
-    font-size: clamp(15.5px, 2.2vw, 17.5px);
+    font-size: 17.5px;
     color: var(--ink-soft);
     max-width: 58ch;
-    margin: 0 0 clamp(24px, 5vw, 36px);
+    margin: 0 0 36px;
     opacity:0;
     animation: riseIn .8s ease .42s forwards;
   }
@@ -203,7 +184,7 @@
   .meta-grid{
     display:grid;
     grid-template-columns: repeat(4, auto);
-    gap: clamp(18px, 3vw, 28px) clamp(24px, 5vw, 40px);
+    gap: 28px 40px;
     padding-top: 28px;
     border-top: 1px solid var(--line);
     max-width: 640px;
@@ -220,24 +201,20 @@
     font-size: 14.5px;
     color: var(--ink);
     font-weight: 500;
-    word-break: break-word;
   }
   .meta-item .v a{ color: var(--accent-deep); text-decoration:none; border-bottom: 1px solid var(--accent); }
 
   @media (max-width: 620px){
     .meta-grid{ grid-template-columns: repeat(2, auto); }
   }
-  @media (max-width: 360px){
-    .meta-grid{ grid-template-columns: 1fr; }
-  }
 
   /* ---------- Layout ---------- */
 
-  main{ padding: 0 clamp(18px, 5vw, 32px) 24px; }
+  main{ padding: 0 32px 40px; }
   section{
     max-width: var(--maxw);
     margin: 0 auto;
-    padding: clamp(30px, 5.5vw, 52px) 0;
+    padding: 74px 0;
     border-bottom: 1px solid var(--line);
   }
   section:last-of-type{ border-bottom:none; }
@@ -246,8 +223,7 @@
     display:flex;
     align-items:baseline;
     gap: 14px;
-    margin-bottom: 18px;
-    flex-wrap: wrap;
+    margin-bottom: 28px;
   }
   .sec-num{
     font-family:'Fraunces', serif;
@@ -260,15 +236,15 @@
     flex-shrink:0;
   }
   .sec-head h2{
-    font-size: clamp(21px, 3.6vw, 26px);
+    font-size: 26px;
     margin:0;
   }
 
-  p{ color: var(--ink); margin: 0 0 12px; }
+  p{ color: var(--ink); margin: 0 0 16px; }
   section > p:first-of-type{ margin-top: 0; }
 
   .lede{
-    font-size: clamp(15.5px, 2vw, 17px);
+    font-size: 17px;
     color: var(--ink-soft);
     max-width: 62ch;
   }
@@ -280,7 +256,6 @@
     padding: 2px 6px;
     border-radius: 5px;
     color: var(--accent-deep);
-    word-break: break-word;
   }
 
   /* ---------- Stat cards ---------- */
@@ -288,20 +263,20 @@
   .stat-row{
     display:grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin: 18px 0 22px;
+    gap: 16px;
+    margin: 28px 0 34px;
   }
   .stat{
     background: var(--surface);
     border-radius: var(--radius);
-    padding: 20px 18px;
+    padding: 22px 20px;
     border-top: 3px solid var(--accent);
   }
   .stat:nth-child(2){ border-top-color: var(--rose-deep); }
   .stat:nth-child(3){ border-top-color: var(--sage-deep); }
   .stat .num{
     font-family:'Fraunces', serif;
-    font-size: clamp(22px, 4vw, 30px);
+    font-size: 30px;
     color: var(--ink);
     display:block;
     margin-bottom: 4px;
@@ -310,16 +285,11 @@
     font-size: 13px;
     color: var(--ink-soft);
   }
-  @media (max-width: 700px){
-    .stat-row{ grid-template-columns: repeat(2, 1fr); }
-  }
-  @media (max-width: 420px){
-    .stat-row{ grid-template-columns: 1fr; }
-  }
+  @media (max-width: 560px){ .stat-row{ grid-template-columns: 1fr; } }
 
   .excl-list{
     list-style:none;
-    padding:0; margin: 18px 0;
+    padding:0; margin: 20px 0;
   }
   .excl-list li{
     padding: 14px 0 14px 22px;
@@ -339,24 +309,18 @@
   .note-box{
     background: var(--surface);
     border-radius: var(--radius);
-    padding: 16px 20px;
+    padding: 18px 22px;
     font-size: 14.5px;
     color: var(--ink-soft);
-    margin: 20px 0 0;
+    margin: 22px 0;
     border-left: 3px solid var(--sage-deep);
   }
 
   /* ---------- Table ---------- */
 
-  .tbl-wrap{
-    overflow-x:auto;
-    margin: 20px 0;
-    border-radius: var(--radius);
-    -webkit-overflow-scrolling: touch;
-  }
+  .tbl-wrap{ overflow-x:auto; margin: 24px 0; }
   table{
     width:100%;
-    min-width: 520px;
     border-collapse: collapse;
     background: var(--surface);
     border-radius: var(--radius);
@@ -366,7 +330,6 @@
   th, td{
     text-align:left;
     padding: 13px 16px;
-    white-space: nowrap;
   }
   thead th{
     background: var(--surface-alt);
@@ -377,15 +340,11 @@
   tbody tr:not(:last-child) td{ border-bottom: 1px solid var(--line); }
   tbody td:first-child{ font-weight:500; }
 
-  @media (max-width: 600px){
-    th, td{ padding: 11px 12px; font-size: 13.5px; }
-  }
-
   .readstraight{
     background: var(--surface);
     border-radius: var(--radius);
-    padding: 20px 22px;
-    margin: 22px 0;
+    padding: 22px 24px;
+    margin: 26px 0;
   }
   .readstraight .tag{
     font-size: 12px;
@@ -400,8 +359,8 @@
   .chart-card{
     background: var(--surface);
     border-radius: var(--radius);
-    padding: clamp(14px, 2.4vw, 22px) clamp(12px, 2.4vw, 22px) clamp(12px, 2.4vw, 16px);
-    margin: 16px 0;
+    padding: 26px 26px 20px;
+    margin: 26px 0;
   }
   .chart-card svg{ width:100%; height:auto; display:block; }
   .chart-cap{
@@ -414,12 +373,12 @@
 
   /* ---------- Limitations ---------- */
 
-  .lim-list{ list-style:none; padding:0; margin: 16px 0; }
+  .lim-list{ list-style:none; padding:0; margin: 24px 0; }
   .lim-item{
     display:grid;
     grid-template-columns: 150px 1fr;
     gap: 18px;
-    padding: 14px 0;
+    padding: 18px 0;
     border-top: 1px solid var(--line);
   }
   .lim-item .lab{
@@ -434,12 +393,12 @@
 
   /* ---------- Recommendations ---------- */
 
-  .rec-list{ list-style:none; padding:0; margin: 16px 0; counter-reset: rec; }
+  .rec-list{ list-style:none; padding:0; margin: 26px 0; counter-reset: rec; }
   .rec{
     display:grid;
-    grid-template-columns: 40px 1fr;
-    gap: 14px;
-    padding: 15px 0;
+    grid-template-columns: 44px 1fr;
+    gap: 18px;
+    padding: 22px 0;
     border-top: 1px solid var(--line);
   }
   .rec-n{
@@ -448,7 +407,7 @@
     color: var(--ink-faint);
   }
   .rec h3{
-    font-size: clamp(15.5px, 2.4vw, 17px);
+    font-size: 17px;
     margin: 0 0 4px;
     display:flex;
     flex-wrap:wrap;
@@ -462,7 +421,6 @@
     border-radius: 999px;
     color: var(--ink);
     background: var(--accent);
-    white-space: nowrap;
   }
   .rec:nth-child(1) .rec-tag{ background: var(--amber); }
   .rec:nth-child(2) .rec-tag{ background: var(--accent); color:#fff; }
@@ -471,34 +429,28 @@
   .rec:nth-child(5) .rec-tag{ background: var(--amber); }
   .rec p{ margin:0; font-size: 14.5px; color: var(--ink-soft); }
 
-  @media (max-width: 420px){
-    .rec{ grid-template-columns: 1fr; gap: 4px; }
-    .rec-n{ font-size: 15px; }
-  }
-
   /* ---------- Repro / footer ---------- */
 
   .repro-box{
     background: var(--surface);
     border-radius: var(--radius);
-    padding: 20px 22px;
-    margin-top: 20px;
+    padding: 24px 26px;
+    margin-top: 22px;
     font-size: 14.5px;
     color: var(--ink-soft);
-    word-break: break-word;
   }
   footer{
     max-width: var(--maxw);
     margin: 0 auto;
-    padding: 32px clamp(18px, 5vw, 32px) 64px;
+    padding: 40px 32px 80px;
     font-size: 13.5px;
     color: var(--ink-faint);
   }
 
   .back-top{
     position: fixed;
-    right: 18px;
-    bottom: 18px;
+    right: 26px;
+    bottom: 26px;
     width: 42px; height: 42px;
     border-radius: 50%;
     background: var(--surface);
@@ -513,18 +465,12 @@
   }
   .back-top.show{ opacity:1; pointer-events:auto; }
   .back-top:hover{ transform: translateY(-2px); color: var(--ink); }
-
-  /* ---------- Focus visibility (accessibility) ---------- */
-  a:focus-visible, .back-top:focus-visible{
-    outline: 2px solid var(--accent-deep);
-    outline-offset: 2px;
-  }
 </style>
 </head>
 <body>
 
 <nav class="nav" id="nav">
-  <a href="#top" class="nav-mark"><span class="dot"></span><span class="label">Search Trajectory</span></a>
+  <a href="#top" class="nav-mark"><span class="dot"></span>Search Trajectory</a>
   <ul class="nav-links">
     <li><a href="#abstract" data-sec="abstract">Abstract</a></li>
     <li><a href="#data" data-sec="data">Data</a></li>
@@ -623,8 +569,10 @@
         <line x1="60" y1="180" x2="600" y2="180" stroke="#DFD9EF" stroke-width="1"/>
         <text x="52" y="184" text-anchor="end" font-size="11" fill="#9089A8" font-family="Inter, sans-serif">0%</text>
         <text x="52" y="24" text-anchor="end" font-size="11" fill="#9089A8" font-family="Inter, sans-serif">100%</text>
+        <!-- base rate dashed line at 37.8% -->
         <line x1="60" y1="119.5" x2="600" y2="119.5" stroke="#C97E8C" stroke-width="1.4" stroke-dasharray="5 5"/>
-        <text x="440" y="114" font-size="11" fill="#C97E8C" font-family="Inter, sans-serif">base rate 37.8%</text>
+        <text x="604" y="123" font-size="11" fill="#C97E8C" font-family="Inter, sans-serif">base rate 37.8%</text>
+        <!-- bars: 62.2% height => 160*0.622=99.5 -->
         <rect x="180" y="80.5" width="90" height="99.5" rx="6" fill="#7C93C9"/>
         <text x="225" y="70" text-anchor="middle" font-size="13" fill="#2E2A3D" font-family="Fraunces, serif">62.2%</text>
         <text x="225" y="200" text-anchor="middle" font-size="12" fill="#635C79" font-family="Inter, sans-serif">Baseline</text>
@@ -644,6 +592,7 @@
         <line x1="60" y1="20" x2="60" y2="180" stroke="#DFD9EF" stroke-width="1"/>
         <line x1="60" y1="180" x2="600" y2="180" stroke="#DFD9EF" stroke-width="1"/>
         <text x="52" y="184" text-anchor="end" font-size="11" fill="#9089A8" font-family="Inter, sans-serif">0%</text>
+        <!-- bars, height max ~150 at 32% -->
         <rect x="90"  y="30"  width="70" height="150" rx="6" fill="#7C93C9"/>
         <text x="125" y="22" text-anchor="middle" font-size="12" fill="#2E2A3D" font-family="Fraunces, serif">32%</text>
         <text x="125" y="200" text-anchor="middle" font-size="11.5" fill="#635C79" font-family="Inter, sans-serif">Top 3</text>
@@ -739,14 +688,16 @@
 <a href="#top" class="back-top" id="backTop" aria-label="Back to top">↑</a>
 
 <script>
+  // nav scroll state
   const nav = document.getElementById('nav');
   const backTop = document.getElementById('backTop');
   window.addEventListener('scroll', () => {
     const y = window.scrollY;
     nav.classList.toggle('scrolled', y > 40);
     backTop.classList.toggle('show', y > 600);
-  }, { passive: true });
+  });
 
+  // scrollspy
   const links = document.querySelectorAll('.nav-links a');
   const secIds = ['abstract','data','method','results','limitations','recommendations','repro'];
   const secs = secIds.map(id => document.getElementById(id)).filter(Boolean);
